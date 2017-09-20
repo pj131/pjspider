@@ -8,10 +8,15 @@ import shutil
 basePath = r"D:/360photo"
 
 
-if os.path.isdir(basePath):
-    shutil.rmtree(basePath)
+#if os.path.isdir(basePath):
+#    shutil.rmtree(basePath)
 if not os.path.isdir(basePath):
     os.mkdir(basePath)
+
+
+#idcount=0
+#url=r'http://image.so.com/z?ch=beauty&t1=625'
+#url=r'http://image.so.com/zj?ch=beauty&t1=625&sn=30'
 
 def req_get_findall(url,string) :
     '''requests url , and re findall string , return list'''
@@ -20,35 +25,36 @@ def req_get_findall(url,string) :
     print 'found ',len(l),' from ',url
     return l
 
+savecount=0
 def save_url(filename,url) :
     '''save url as file'''
+    global savecount
     r=requests.get(url)
     imgfile=open(filename, "wb")
     imgfile.write(r.content)
     imgfile.close()
+    savecount = savecount + 1
 
-savecount=0
 
-#idcount=0
-#url=r'http://image.so.com/z?ch=beauty&t1=625'
-idcount=0
-url=r'http://image.so.com/zj?ch=beauty&t1=625&sn=%s' % (idcount)
+def spider360(idcount):
+    url=r'http://image.so.com/zj?ch=beauty&t1=625&sn=%s' % (idcount)
+    findstring=r'"id":"(.*?)".*?"group_title":"(.*?)".*?"tag":"(.*?)".*?"label":"(.*?)"'
+    print 'start ......',idcount
+    for id in  req_get_findall(url, findstring) :
+        print '[%s]%s - %s - %s' % (idcount,id[1].decode('unicode_escape'),id[2].decode('unicode_escape'),id[3].decode('unicode_escape'))
+        url = r'http://image.so.com/zvj?ch=beauty&t1=625&id=%s' % (id[0])
+        findstring=r'"qhimg_url":"(.*?)"'
+        count=1
+        for imgurl in req_get_findall(url, findstring) :
+            imgurl = imgurl.replace("\/", "/")
+            suffix=imgurl.split('.')[-1]
+            filename = r"%s/[%s]%s_%s.%s" % (basePath,idcount,id[1].decode('unicode_escape'),count,suffix)
+            filename=filename.replace("\/", "")
+            count=count+1
+            save_url(filename,imgurl)
+        idcount=idcount+1
 
-findstring=r'"id":"(.*?)".*?"group_title":"(.*?)".*?"tag":"(.*?)".*?"label":"(.*?)"'
-
-for id in  req_get_findall(url, findstring) :
-    print '%s - %s - %s' % (id[1].decode('unicode_escape'),id[2].decode('unicode_escape'),id[3].decode('unicode_escape'))
-    url = r'http://image.so.com/zvj?ch=beauty&t1=625&id=%s' % (id[0])
-    findstring=r'"qhimg_url":"(.*?)"'
-    count=1
-    for imgurl in req_get_findall(url, findstring) :
-        imgurl = imgurl.replace("\/", "/")
-        suffix=imgurl.split('.')[-1]
-        filename = r"%s/%s%s_%s.%s" % (basePath,idcount,id[1].decode('unicode_escape'),count,suffix)
-        count=count+1
-#        print filename
-        save_url(filename,imgurl)
-        savecount=savecount+1
-    idcount=idcount+1
-
+#for i in xrange(10) :
+#    spider360(i*30)
+spider360(197)
 print 'done',savecount
