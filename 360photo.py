@@ -10,10 +10,8 @@ basePath = r"D:/360photo"
 
 if os.path.isdir(basePath):
     shutil.rmtree(basePath)
+if not os.path.isdir(basePath):
     os.mkdir(basePath)
-else:
-    os.mkdir(basePath)
-
 
 def req_get_findall(url,string) :
     '''requests url , and re findall string , return list'''
@@ -30,8 +28,14 @@ def save_url(filename,url) :
     imgfile.close()
 
 savecount=0
-url=r'http://image.so.com/z?ch=beauty&t1=625'
+
+#idcount=0
+#url=r'http://image.so.com/z?ch=beauty&t1=625'
+idcount=0
+url=r'http://image.so.com/zj?ch=beauty&t1=625&sn=%s' % (idcount)
+
 findstring=r'"id":"(.*?)".*?"group_title":"(.*?)".*?"tag":"(.*?)".*?"label":"(.*?)"'
+
 for id in  req_get_findall(url, findstring) :
     print '%s - %s - %s' % (id[1].decode('unicode_escape'),id[2].decode('unicode_escape'),id[3].decode('unicode_escape'))
     url = r'http://image.so.com/zvj?ch=beauty&t1=625&id=%s' % (id[0])
@@ -40,10 +44,11 @@ for id in  req_get_findall(url, findstring) :
     for imgurl in req_get_findall(url, findstring) :
         imgurl = imgurl.replace("\/", "/")
         suffix=imgurl.split('.')[-1]
-        filename = r"%s/%s_%s.%s" % (basePath,id[1].decode('unicode_escape'),count,suffix)
+        filename = r"%s/%s%s_%s.%s" % (basePath,idcount,id[1].decode('unicode_escape'),count,suffix)
         count=count+1
 #        print filename
         save_url(filename,imgurl)
         savecount=savecount+1
+    idcount=idcount+1
 
-print '爬取完成',savecount
+print 'done',savecount
