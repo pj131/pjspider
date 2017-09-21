@@ -99,3 +99,10 @@ ENV/
 
 # mypy
 .mypy_cache/
+.idea/dictionaries/
+.idea/encodings.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/pjspider.iml
+.idea/vcs.xml
+.idea/workspace.xml

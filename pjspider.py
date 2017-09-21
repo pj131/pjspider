@@ -15,7 +15,7 @@ if os.path.isdir(basePath):
 if not os.path.isdir(basePath):
     os.mkdir(basePath)
 
-#for i in xrange(10) :
-#    beauty360.spider360(i*30,basePath)
+for i in xrange(2) :
+    beauty360.spider360(i*30,basePath)
 
 print 'beauty360 done ......',img.savecount
